@@ -10,7 +10,7 @@ ne = ne+1;
 
 
 % Inicia modelos
-M = 40; % qtd Modelos
+M = 4; % qtd Modelos
 
 stan_dev = 10; %desvio padrao da distribuicao inicial
 mean = 0; %media da distribuicao inicial
@@ -70,6 +70,7 @@ for j=1:M
     T{j,1} = T{j,1} + alfa * ( X' * (Ytr-fj) - lambda * (X' * (Ytr-fi)));
     
     err = sum( ((Ytr-fj).^2) + ( lambda*( (Ytr-fi).*(Ytr-fj) ) ) );
+   % Jit(it) = err;
   end
 end
 
@@ -110,3 +111,6 @@ plot(YNorEq, 'r-','DisplayName','Normal Equation'); % Modelo unico com Normal Eq
 plot(Y, 'k-', 'DisplayName','Ensemble'); % Saida da mistura obtida
 
 legend('Location','southeast')
+
+
+return
