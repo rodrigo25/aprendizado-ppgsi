@@ -10,14 +10,22 @@ ne = ne+1;
 
 
 % Inicia modelos
-M = 4; % qtd Modelos
+M = 5; % qtd Modelos
 
 stan_dev = 10; %desvio padrao da distribuicao inicial
 mean = 0; %media da distribuicao inicial
 
-for j=1:M
-  T{j,1} = stan_dev.*randn(ne,1) + mean; %inicia valores randomicamente
+sumFi= zeros(m,ns);
+
+for i=1:M
+  T{i,1} = stan_dev.*randn(ne,1) + mean; %inicia valores randomicamente
+
+  fiAtual{i,1} = X*T{i,1};
+  sumFi = sumFi + fiAtual{i,1};
 end
+
+fens = sumFi/M;
+
 
 
 
@@ -48,31 +56,40 @@ pause
 
 
 
+
+
 % Treina ensemble
 alfa = 0.0001;
 lambda = .1;
-for j=1:M
-  err=1;
-  it = 0;
-  maxit = 20000;
-  %lambda = 1/j;  
+
+err=1;
+it = 0;
+maxit = 20000;
+
+while (err>.001 && it<=maxit)
+  it = it +1;
   
-  if j>1
-    fi = X*T{j-1,1};
-  else
-    fi = Ytr;
+  fiAnt = fiAtual;
+  sumFi= zeros(m,ns);
+  
+  for i=1:M
+    %T{i,1} = T{i,1} + alfa * ( X' * (Ytr-fj) - lambda * (X' * (Ytr-fi)));
+    
+    T{i,1} = T{i,1} + alfa * ( X'*(Ytr-fiAnt{i,1}) - lambda*X'*(fens-fiAnt{i,1}) );  
+    %T{i,1} = T{i,1} + alfa * ( (1-lambda)*X'*(Ytr-fiAnt{i,1}) + lambda*X'*(fens-Ytr) );  
+    
+    fiAtual{i,1} = X*T{i,1};
+    sumFi = sumFi + fiAtual{i,1};
   end
   
-  while (err>.001 && it<=maxit)
-    it = it +1;
-    fj = X*T{j,1};
-    
-    T{j,1} = T{j,1} + alfa * ( X' * (Ytr-fj) - lambda * (X' * (Ytr-fi)));
-    
-    err = sum( ((Ytr-fj).^2) + ( lambda*( (Ytr-fi).*(Ytr-fj) ) ) );
-   % Jit(it) = err;
-  end
+  fens = sumFi/M;
+  %err = sum( ((Ytr-fj).^2) + ( lambda*( (Ytr-fi).*(Ytr-fj) ) ) );
 end
+
+
+
+
+
 
 
 % Testa sobre o mesmo conjunto
@@ -92,11 +109,11 @@ errNorEq = sum(abs(Ytr-YNorEq))/m;
 
 fprintf('Erro Médio Ensemble %f\n', errEns)
 fprintf('Erro Médio Normal Equation %f\n', errNorEq)
+
   
   
   
 % Plota Resultados Finais
-
 figure
 title(['Modelos Finais']);
 hold on
@@ -111,6 +128,3 @@ plot(YNorEq, 'r-','DisplayName','Normal Equation'); % Modelo unico com Normal Eq
 plot(Y, 'k-', 'DisplayName','Ensemble'); % Saida da mistura obtida
 
 legend('Location','southeast')
-
-
-return
