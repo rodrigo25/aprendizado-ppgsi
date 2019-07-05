@@ -1,0 +1,408 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Teste do SVM - IRIS</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-09-01"><meta name="DC.source" content="Teste.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Teste do SVM - IRIS</h1><!--introduction--><p>Teste</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Dados</a></li><li><a href="#2">Define Par&acirc;metros</a></li><li><a href="#3">Treina Meu SVM</a></li><li><a href="#4">Treina SVM do MATLAB</a></li><li><a href="#5">Compara  Vetores de Suporte</a></li><li><a href="#6">Classifica Conjunto de Treinamento</a></li></ul></div><h2>Dados<a name="1"></a></h2><p>Dados do conjunto IRIS com 50 exemplos da classe setosa e 50 exemplos da classe versicolor.</p><pre>X -&gt; [100x4]</pre><pre>1 -&gt; 'setosa'
+-1 -&gt; 'versicolor'</pre><pre class="codeinput">load(<span class="string">'dadosIris.mat'</span>)
+N = size(X, 1);
+
+scatter3(X(Y==1,1),X(Y==1,2),X(Y==1,3))
+hold <span class="string">on</span>
+scatter3(X(Y==-1,1),X(Y==-1,2),X(Y==-1,3))
+</pre><img vspace="5" hspace="5" src="Teste_01.png" alt=""> <h2>Define Par&acirc;metros<a name="2"></a></h2><pre class="codeinput">Ker = <span class="string">'rbf'</span>;
+param = 1;
+C = 10;
+tol = 0.002;
+max_passes = 1500;
+
+<span class="comment">% Calcula Matriz de Kernel</span>
+K = zeros(N);
+<span class="keyword">for</span> i=1:N
+ <span class="keyword">for</span> j=1:N
+   K(i,j) = kernel(X(i,:),X(j,:), Ker, param);
+ <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Treina Meu SVM<a name="3"></a></h2><pre class="codeinput">tic
+[alfa, b] = SMO_K2( X, Y, C, K, tol, max_passes );
+QtdSupportVectors = sum(alfa~=0)
+Bias = b
+TimeTrainingSMO = toc
+</pre><pre class="codeoutput">
+QtdSupportVectors =
+
+    16
+
+
+Bias =
+
+    0.0725
+
+
+TimeTrainingSMO =
+
+    0.1500
+
+</pre><h2>Treina SVM do MATLAB<a name="4"></a></h2><pre class="codeinput">tic
+<span class="keyword">if</span> strcmp(Ker,<span class="string">'rbf'</span>)
+  SVMStruct = svmtrain(X,Y,<span class="string">'kernel_function'</span>,Ker,<span class="string">'rbf_sigma'</span>,param,<span class="string">'boxconstraint'</span>,C)
+<span class="keyword">else</span>
+  SVMStruct = svmtrain(X,Y,<span class="string">'kernel_function'</span>,Ker,<span class="string">'boxconstraint'</span>,C)
+<span class="keyword">end</span>
+TimeTrainingSMOMatlab = toc
+</pre><pre class="codeoutput">
+SVMStruct = 
+
+          SupportVectors: [25x4 double]
+                   Alpha: [25x1 double]
+                    Bias: 0.0548
+          KernelFunction: @rbf_kernel
+      KernelFunctionArgs: {[1]}
+              GroupNames: [100x1 double]
+    SupportVectorIndices: [25x1 double]
+               ScaleData: [1x1 struct]
+           FigureHandles: []
+
+
+TimeTrainingSMOMatlab =
+
+    0.0155
+
+</pre><h2>Compara  Vetores de Suporte<a name="5"></a></h2><pre class="codeinput">alfaMatlab = zeros(size(alfa));
+alfaMatlab(SVMStruct.SupportVectorIndices) = SVMStruct.Alpha;
+
+[alfa alfaMatlab]
+</pre><pre class="codeoutput">
+ans =
+
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0   -0.4077
+    0.1750   -0.2303
+    0.6812   -0.7325
+         0         0
+         0         0
+         0   -0.0058
+         0         0
+         0   -0.2373
+         0         0
+    0.1011   -0.3917
+         0   -0.1071
+    0.5354         0
+         0   -0.1572
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0   -0.0575
+         0   -0.1772
+         0         0
+         0         0
+         0         0
+         0   -0.0432
+         0         0
+   -0.0000         0
+         0         0
+         0         0
+    0.8852   -0.9929
+         0         0
+   -0.0000   -0.2097
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+    0.5503    0.6558
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+    0.0000    0.4191
+         0         0
+         0         0
+    0.1740    0.4884
+         0         0
+    0.0193    0.2471
+         0         0
+         0    0.0322
+         0         0
+         0         0
+         0    0.0338
+    0.1456    0.5424
+         0         0
+         0    0.1686
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0    0.1615
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+    0.2929         0
+    0.0667    0.3741
+    0.2075    0.3902
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+         0         0
+    0.9216    0.2369
+         0         0
+
+</pre><h2>Classifica Conjunto de Treinamento<a name="6"></a></h2><pre class="codeinput">Yans = zeros(N,1);
+
+<span class="keyword">for</span> i=1:N
+  [~,Yans(i,:)] = outputSVM(alfa, b, X, Y, X(i,:), Ker, param);
+<span class="keyword">end</span>
+
+resultado = abs(Yans + Y);
+
+<span class="comment">% calculo da acuracia</span>
+acertos = sum(resultado == 2);
+erros = sum(resultado == 0);
+acuracia = acertos/N;
+
+fprintf(<span class="string">'\n\n### Meu SVM ###\n'</span>)
+fprintf(<span class="string">' acertos:  %d\n erros:    %d\n acuracia: %2.2f\n'</span>, acertos, erros, acuracia)
+confMatrix = confusionmat(Y,Yans,<span class="string">'order'</span>,[1,-1])
+
+
+
+
+<span class="comment">%Yans = zeros(N,1);</span>
+<span class="comment">%for i=1:N</span>
+<span class="comment">%  [~,Yans(i,:)] = outputSVM(alfaMatlab, SVMStruct.Bias, X, Y, X(i,:), Ker, param);</span>
+<span class="comment">%end</span>
+Yans = svmclassify(SVMStruct,X);
+
+resultado = abs(Yans + Y);
+
+<span class="comment">% calculo da acuracia</span>
+acertos = sum(resultado == 2);
+erros = sum(resultado == 0);
+acuracia = acertos/N;
+
+fprintf(<span class="string">'\n\n### SVM do Matlab ###\n'</span>)
+fprintf(<span class="string">' acertos:  %d\n erros:    %d\n acuracia: %2.2f\n'</span>, acertos, erros, acuracia)
+confMatrix = confusionmat(Y,Yans,<span class="string">'order'</span>,[1,-1])
+</pre><pre class="codeoutput">
+
+### Meu SVM ###
+ acertos:  100
+ erros:    0
+ acuracia: 1.00
+
+confMatrix =
+
+    50     0
+     0    50
+
+
+
+### SVM do Matlab ###
+ acertos:  100
+ erros:    0
+ acuracia: 1.00
+
+confMatrix =
+
+    50     0
+     0    50
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Teste do SVM - IRIS
+% Teste
+
+%% Dados
+% Dados do conjunto IRIS com 50 exemplos da classe setosa e 50 exemplos da
+% classe versicolor.
+%
+%  X -> [100x4]
+%
+%  1 -> 'setosa'
+%  -1 -> 'versicolor'
+
+load('dadosIris.mat')
+N = size(X, 1);
+
+scatter3(X(Y==1,1),X(Y==1,2),X(Y==1,3))
+hold on
+scatter3(X(Y==-1,1),X(Y==-1,2),X(Y==-1,3))
+
+
+%% Define Parâmetros
+%
+
+Ker = 'rbf';
+param = 1;
+C = 10;
+tol = 0.002;
+max_passes = 1500;
+
+% Calcula Matriz de Kernel
+K = zeros(N);
+for i=1:N
+ for j=1:N
+   K(i,j) = kernel(X(i,:),X(j,:), Ker, param);
+ end
+end
+
+
+%% Treina Meu SVM
+
+tic
+[alfa, b] = SMO_K2( X, Y, C, K, tol, max_passes );
+QtdSupportVectors = sum(alfa~=0)
+Bias = b
+TimeTrainingSMO = toc
+           
+           
+
+%% Treina SVM do MATLAB
+tic
+if strcmp(Ker,'rbf')
+  SVMStruct = svmtrain(X,Y,'kernel_function',Ker,'rbf_sigma',param,'boxconstraint',C)
+else
+  SVMStruct = svmtrain(X,Y,'kernel_function',Ker,'boxconstraint',C)
+end
+TimeTrainingSMOMatlab = toc
+
+
+%% Compara  Vetores de Suporte
+alfaMatlab = zeros(size(alfa));
+alfaMatlab(SVMStruct.SupportVectorIndices) = SVMStruct.Alpha;
+
+[alfa alfaMatlab]
+
+
+%% Classifica Conjunto de Treinamento
+Yans = zeros(N,1);
+
+for i=1:N
+  [~,Yans(i,:)] = outputSVM(alfa, b, X, Y, X(i,:), Ker, param);
+end
+
+resultado = abs(Yans + Y);
+
+% calculo da acuracia
+acertos = sum(resultado == 2);
+erros = sum(resultado == 0);
+acuracia = acertos/N;
+
+fprintf('\n\n### Meu SVM ###\n')
+fprintf(' acertos:  %d\n erros:    %d\n acuracia: %2.2f\n', acertos, erros, acuracia)
+confMatrix = confusionmat(Y,Yans,'order',[1,-1])
+
+
+
+
+%Yans = zeros(N,1);
+%for i=1:N
+%  [~,Yans(i,:)] = outputSVM(alfaMatlab, SVMStruct.Bias, X, Y, X(i,:), Ker, param);
+%end
+Yans = svmclassify(SVMStruct,X);
+
+resultado = abs(Yans + Y);
+
+% calculo da acuracia
+acertos = sum(resultado == 2);
+erros = sum(resultado == 0);
+acuracia = acertos/N;
+
+fprintf('\n\n### SVM do Matlab ###\n')
+fprintf(' acertos:  %d\n erros:    %d\n acuracia: %2.2f\n', acertos, erros, acuracia)
+confMatrix = confusionmat(Y,Yans,'order',[1,-1])
+
+##### SOURCE END #####
+--></body></html>
